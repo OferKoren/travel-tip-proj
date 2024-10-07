@@ -1,6 +1,10 @@
+*{
+    box-sizing: border-box;
+}
+
 .locs-container {
-    background-color: var(--bg3);
-    padding: 0.5em;
+    background-color: var(--bg2);
+    padding: 1.2em;
     min-height: 100vh;
 }
 
@@ -11,8 +15,14 @@
 
 .loc-list li {
     padding-bottom: .2em;
-    border-bottom: 1px solid #222;
+    border-bottom: 1px solid var(--color1);
 }
+
+h3{
+    font-size: 1.8em;
+    margin: .5em 0em;
+}
+
 .loc-list li h4 {
     display: flex;
     justify-content: space-between;
@@ -22,43 +32,60 @@
     color: var(--color3);
 }
 
-.loc-list li.active .muted{
+.loc-list li.active .muted {
     color: var(--color4);
 }
 
 .loc-btns {
     text-align: end;
+    margin-bottom: 15px;
 }
 
 .map {
     width: 100%;
-    height: 100vh;
-}
-
-.form-search {
-    display: block;
-    text-align: end;
+    height: 100%;
 }
 
 .btn-user-pos {
-    background-color: var(--bg2);
+    background-color: var(--color1);
     background-image: url(../../img/user-loc.png);
     background-size: cover;
-    width: 2em;
-    height: 2em;
+    width: 1.8em;
+    height: 1.8em;
 }
+
 .btn-user-pos:hover {
     background-color: whitesmoke;
 }
 
 .loc-filter {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: start;
     background-color: var(--bg1);
-    padding: 0.3em;
+    padding: 10px;
+    border-radius: 0.5rem;
+}
+
+.loc-filter input{
+    border-radius: 0.3rem;
+}
+
+.loc-filter input[type]{
+    padding-inline-start: 5px;
 }
 
 .loc-filter input[type=text] {
+    line-height: 2.3em;
+    border-radius: .3em;
+    padding-left: .6em;
     width: 98%;
     margin-bottom: .5em;
+}
+
+.accent{
+    accent-color: var(--color2);
 }
 
 .pie {

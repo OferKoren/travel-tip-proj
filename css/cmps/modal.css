@@ -1,7 +1,32 @@
 .modal{
-    background-color: var(--bg3);
+    background-color: var(--bg2);
+    border-radius: 10px;
+    border: 2px solid var(--bg1);
+    color: var(--color2);
 }
 
 .modal input{
-    border: 2px solid black;
+    border: 2px solid var(--bg1);
+}
+
+.modal-title{
+    margin: .5em;
+    line-height: 1;
+    padding-bottom: .6em;
+}
+
+.modal>*{
+    text-align: center;
+    vertical-align: middle;
+}
+
+.modal button{
+    height: 2.2em;
+    border: 2px solid var(--bg1);
+    color: var(--color2);
+    font-size: 1em;
+}
+
+.modal button:hover{
+    background-color: var(--bg3);
 }

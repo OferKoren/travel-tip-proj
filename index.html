@@ -4,13 +4,15 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="css/main.css" />
     <title>TravelTip</title>
 </head>
 
 <body>
+    
     <header>
-        <h1>TravelTip</h1>
+        <h1><i class="fa-solid fa-plane-departure"></i> TravelTip</h1>
         <section class="selected-loc">
             <h2>
                 Location:
@@ -25,14 +27,14 @@
         </section>
         <form class="form-search" onsubmit="app.onSearchAddress(event)">
             <input type="text" name="address" placeholder="Search address" />
-            <button title="Search">🔍</button>
+            <button title="Search"><i class="fa-solid fa-magnifying-glass"></i></button>
             <button type="button" title="My Position" onclick="app.onPanToUserPos()"
                 class="btn-user-pos">&nbsp;</button>
         </form>
     </header>
+
     <main>
-        <div class="map"></div>
-        <div>
+        <div class="main-div">
             <section class="locs-container">
                 <section class="loc-filter">
                     <div>
@@ -42,7 +44,7 @@
                     <div>
                         <label>
                             Min Rate:
-                            <input type="range" min="0" max="5" value="0" class="filter-rate-range"
+                            <input type="range" min="0" max="5" value="0" class="filter-rate-range accent"
                                 onchange="this.title=this.value;app.onSetFilterBy({minRate: this.value})" />
                         </label>
                     </div>
@@ -76,13 +78,31 @@
                 </section>
             </section>
         </div>
+        <div class="map"></div>
     </main>
+
     <dialog class="modal">
+        <h3 class="modal-title">Add Location</h3>
         <input class="loc-input" type="text">
-        <input type="range" min="0" max="5" value="3" oninput="rangeValue.innerText = this.value">
-        <span id="rangeValue">3</span>
+        <input class="rating" type="number" min="1" max="5" value="3">
         <button class="save" onclick="app.onSave()">Save</button>
     </dialog>
+
+    <footer class="footer">
+        <p>
+            <h2><i class="fa-solid fa-plane-departure"></i> TravelTip.</h2>
+            © 2024 Created by 
+            <a href="https://github.com/effiesharmony" target="_blank" class="github-icon">
+                <i class="fab fa-github"></i>
+            </a>
+            Effie Armony 
+            <a href="https://github.com/OferKoren" target="_blank" class="github-icon">
+                <i class="fab fa-github"></i>
+            </a>
+            Ofer Koren
+        </p>
+    </footer>
+
     <pre class="debug" hidden></pre>
     <div class="user-msg"></div>
     <script type="module" src="js/app.controller.js"></script>

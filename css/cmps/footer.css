@@ -1,0 +1,31 @@
+.footer {
+    text-align: center;
+    background-color: var(--bg1);
+    color: #fff;
+    font-family: Arial, sans-serif;
+    justify-content: center;
+    align-items: center;
+}
+
+footer h1{
+    margin: 10px;
+}
+
+.github-icon {
+    color: var(--clr1);
+    font-size: 18px;
+    text-decoration: none;
+}
+
+.github-icon:hover {
+    color: var(--bg3);
+}
+
+.footer i {
+    margin-left: 5px;
+}
+
+.footer .fa-solid {
+    margin-left: 10px;
+    margin-right: 5px;
+}

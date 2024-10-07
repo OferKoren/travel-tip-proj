@@ -4,14 +4,15 @@
 @import url(cmps/locs.css);
 @import url(cmps/selected-loc.css);
 @import url(cmps/modal.css);
+@import url(cmps/footer.css);
 
 @media (min-width: 750px) {
     main {
-        display: flex;
-        flex-direction: row-reverse;
+        display: grid;
+        grid-template-columns: 1fr 2fr;
     }
+
     .locs-container {
-        width: 30vw;
+        width: 100%;
     }
 }
-
