@@ -4,7 +4,7 @@ import { mapService } from './services/map.service.js'
 
 window.onload = onInit
 
-// To make things easier in this project structure 
+// To make things easier in this project structure
 // functions that are called from DOM are defined on a global app object
 window.app = {
     onRemoveLoc,
@@ -21,12 +21,13 @@ window.app = {
 function onInit() {
     loadAndRenderLocs()
 
-    mapService.initMap()
+    mapService
+        .initMap()
         .then(() => {
             // onPanToTokyo()
             mapService.addClickListener(onAddLoc)
         })
-        .catch(err => {
+        .catch((err) => {
             console.error('OOPs:', err)
             flashMsg('Cannot init map')
         })
@@ -35,9 +36,10 @@ function onInit() {
 function renderLocs(locs) {
     const selectedLocId = getLocIdFromQueryParams()
     // console.log('locs:', locs)
-    var strHTML = locs.map(loc => {
-        const className = (loc.id === selectedLocId) ? 'active' : ''
-        return `
+    var strHTML = locs
+        .map((loc) => {
+            const className = loc.id === selectedLocId ? 'active' : ''
+            return `
         <li class="loc ${className}" data-id="${loc.id}">
             <h4>  
                 <span>${loc.name}</span>
@@ -45,16 +47,16 @@ function renderLocs(locs) {
             </h4>
             <p class="muted">
                 Created: ${utilService.elapsedTime(loc.createdAt)}
-                ${(loc.createdAt !== loc.updatedAt) ?
-                ` | Updated: ${utilService.elapsedTime(loc.updatedAt)}`
-                : ''}
+                ${loc.createdAt !== loc.updatedAt ? ` | Updated: ${utilService.elapsedTime(loc.updatedAt)}` : ''}
             </p>
             <div class="loc-btns">     
                <button title="Delete" onclick="app.onRemoveLoc('${loc.id}')">🗑️</button>
                <button title="Edit" onclick="app.onUpdateLoc('${loc.id}')">✏️</button>
                <button title="Select" onclick="app.onSelectLoc('${loc.id}')">🗺️</button>
             </div>     
-        </li>`}).join('')
+        </li>`
+        })
+        .join('')
 
     const elLocList = document.querySelector('.loc-list')
     elLocList.innerHTML = strHTML || 'No locs to show'
@@ -62,106 +64,123 @@ function renderLocs(locs) {
     renderLocStats()
 
     if (selectedLocId) {
-        const selectedLoc = locs.find(loc => loc.id === selectedLocId)
+        const selectedLoc = locs.find((loc) => loc.id === selectedLocId)
         displayLoc(selectedLoc)
     }
     document.querySelector('.debug').innerText = JSON.stringify(locs, null, 2)
 }
 
 function onRemoveLoc(locId) {
-    locService.remove(locId)
-        .then(() => {
-            flashMsg('Location removed')
-            unDisplayLoc()
-            loadAndRenderLocs()
+    locService
+        .getById(locId)
+        .then((location) => {
+            return confirm(`you sure you want to delete ${location.name}`)
         })
-        .catch(err => {
-            console.error('OOPs:', err)
-            flashMsg('Cannot remove location')
+        .then((isConfirm) => {
+            if (isConfirm) {
+                locService
+                    .remove(locId)
+                    .then(() => {
+                        flashMsg('Location removed')
+                        unDisplayLoc()
+                        loadAndRenderLocs()
+                    })
+                    .catch((err) => {
+                        console.error('OOPs:', err)
+                        flashMsg('Cannot remove location')
+                    })
+            }
         })
+
+    // const confirm = confirm('you sure you want to delete')
 }
 
 function onSearchAddress(ev) {
     ev.preventDefault()
     const el = document.querySelector('[name=address]')
-    mapService.lookupAddressGeo(el.value)
-        .then(geo => {
+    mapService
+        .lookupAddressGeo(el.value)
+        .then((geo) => {
             mapService.panTo(geo)
         })
-        .catch(err => {
+        .catch((err) => {
             console.error('OOPs:', err)
             flashMsg('Cannot lookup address')
         })
 }
 
 function onAddLoc(geo) {
+    console.log(geo)
     const locName = prompt('Loc name', geo.address || 'Just a place')
     if (!locName) return
 
     const loc = {
         name: locName,
         rate: +prompt(`Rate (1-5)`, '3'),
-        geo
+        geo,
     }
-    locService.save(loc)
+    locService
+        .save(loc)
         .then((savedLoc) => {
             flashMsg(`Added Location (id: ${savedLoc.id})`)
             utilService.updateQueryParams({ locId: savedLoc.id })
             loadAndRenderLocs()
         })
-        .catch(err => {
+        .catch((err) => {
             console.error('OOPs:', err)
             flashMsg('Cannot add location')
         })
 }
 
 function loadAndRenderLocs() {
-    locService.query()
+    locService
+        .query()
         .then(renderLocs)
-        .catch(err => {
+        .catch((err) => {
             console.error('OOPs:', err)
             flashMsg('Cannot load locations')
         })
 }
 
 function onPanToUserPos() {
-    mapService.getUserPosition()
-        .then(latLng => {
+    mapService
+        .getUserPosition()
+        .then((latLng) => {
             mapService.panTo({ ...latLng, zoom: 15 })
             unDisplayLoc()
             loadAndRenderLocs()
             flashMsg(`You are at Latitude: ${latLng.lat} Longitude: ${latLng.lng}`)
         })
-        .catch(err => {
+        .catch((err) => {
             console.error('OOPs:', err)
             flashMsg('Cannot get your position')
         })
 }
 
 function onUpdateLoc(locId) {
-    locService.getById(locId)
-        .then(loc => {
-            const rate = prompt('New rate?', loc.rate)
-            if (rate !== loc.rate) {
-                loc.rate = rate
-                locService.save(loc)
-                    .then(savedLoc => {
-                        flashMsg(`Rate was set to: ${savedLoc.rate}`)
-                        loadAndRenderLocs()
-                    })
-                    .catch(err => {
-                        console.error('OOPs:', err)
-                        flashMsg('Cannot update location')
-                    })
-
-            }
-        })
+    locService.getById(locId).then((loc) => {
+        const rate = prompt('New rate?', loc.rate)
+        if (rate !== loc.rate) {
+            loc.rate = rate
+            locService
+                .save(loc)
+                .then((savedLoc) => {
+                    flashMsg(`Rate was set to: ${savedLoc.rate}`)
+                    loadAndRenderLocs()
+                })
+                .catch((err) => {
+                    console.error('OOPs:', err)
+                    flashMsg('Cannot update location')
+                })
+        }
+    })
 }
 
 function onSelectLoc(locId) {
-    return locService.getById(locId)
+    return locService
+        .getById(locId)
         .then(displayLoc)
-        .catch(err => {
+        .catch((err) => {
             console.error('OOPs:', err)
             flashMsg('Cannot display this location')
         })
@@ -205,7 +224,7 @@ function onShareLoc() {
     const data = {
         title: 'Cool location',
         text: 'Check out this location',
-        url
+        url,
     }
     navigator.share(data)
 }
@@ -232,7 +251,7 @@ function onSetSortBy() {
     if (!prop) return
 
     const sortBy = {}
-    sortBy[prop] = (isDesc) ? -1 : 1
+    sortBy[prop] = isDesc ? -1 : 1
 
     // Shorter Syntax:
     // const sortBy = {
@@ -250,7 +269,7 @@ function onSetFilterBy({ txt, minRate }) {
 }
 
 function renderLocStats() {
-    locService.getLocCountByRateMap().then(stats => {
+    locService.getLocCountByRateMap().then((stats) => {
         console.log('stats:', stats)
         handleStats(stats, 'loc-stats-rate')
     })
@@ -283,14 +302,16 @@ function handleStats(stats, selector) {
     const style = `background-image: conic-gradient(${colorsStr})`
     elPie.style = style
 
-    const ledendHTML = labels.map((label, idx) => {
-        return `
+    const ledendHTML = labels
+        .map((label, idx) => {
+            return `
                 <li>
                     <span class="pie-label" style="background-color:${colors[idx]}"></span>
                     ${label} (${stats[label]})
                 </li>
             `
-    }).join('')
+        })
+        .join('')
 
     const elLegend = document.querySelector(`.${selector} .legend`)
     elLegend.innerHTML = ledendHTML
