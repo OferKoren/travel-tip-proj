@@ -3,7 +3,7 @@ import { locService } from './services/loc.service.js'
 import { mapService } from './services/map.service.js'
 
 window.onload = onInit
-
+var gUserPos
 // To make things easier in this project structure
 // functions that are called from DOM are defined on a global app object
 window.app = {
@@ -38,11 +38,20 @@ function renderLocs(locs) {
     // console.log('locs:', locs)
     var strHTML = locs
         .map((loc) => {
+            let distance
+            if (gUserPos) {
+                const latlng = { lat: loc.geo.lat, lng: loc.geo.lng }
+                distance = utilService.getDistance(latlng, gUserPos)
+            }
             const className = loc.id === selectedLocId ? 'active' : ''
-            return `
+            let strHTML = `
         <li class="loc ${className}" data-id="${loc.id}">
             <h4>  
-                <span>${loc.name}</span>
+                <span>${loc.name}</span>`
+            if (distance) {
+                strHTML += `<span>distance: ${distance}km</span>`
+            }
+            strHTML += `
                 <span title="${loc.rate} stars">${'★'.repeat(loc.rate)}</span>
             </h4>
             <p class="muted">
@@ -55,9 +64,9 @@ function renderLocs(locs) {
                <button title="Select" onclick="app.onSelectLoc('${loc.id}')">🗺️</button>
             </div>     
         </li>`
+            return strHTML
         })
         .join('')
-
     const elLocList = document.querySelector('.loc-list')
     elLocList.innerHTML = strHTML || 'No locs to show'
 
@@ -146,6 +155,7 @@ function onPanToUserPos() {
     mapService
         .getUserPosition()
         .then((latLng) => {
+            gUserPos = { lat: latLng.lat, lng: latLng.lng }
             mapService.panTo({ ...latLng, zoom: 15 })
             unDisplayLoc()
             loadAndRenderLocs()
@@ -198,6 +208,17 @@ function displayLoc(loc) {
     el.querySelector('.loc-address').innerText = loc.geo.address
     el.querySelector('.loc-rate').innerHTML = '★'.repeat(loc.rate)
     el.querySelector('[name=loc-copier]').value = window.location
+    const elLocDistance = document.querySelector('.loc-distance')
+
+    if (gUserPos) {
+        elLocDistance.classList.remove('hidden')
+        const latlng = { lat: loc.geo.lat, lng: loc.geo.lng }
+        const distance = utilService.getDistance(latlng, gUserPos)
+        elLocDistance.innerHTML = `distance: ${distance}km`
+    } else {
+        elLocDistance.classList.add('hidden')
+    }
+
     el.classList.add('show')
 
     utilService.updateQueryParams({ locId: loc.id })
