@@ -16,6 +16,7 @@ window.app = {
     onShareLoc,
     onSetSortBy,
     onSetFilterBy,
+    onSave,
 }
 
 function onInit() {
@@ -25,7 +26,7 @@ function onInit() {
         .initMap()
         .then(() => {
             // onPanToTokyo()
-            mapService.addClickListener(onAddLoc)
+            mapService.addClickListener(openModal)
         })
         .catch((err) => {
             console.error('OOPs:', err)
@@ -118,16 +119,29 @@ function onSearchAddress(ev) {
         })
 }
 
-function onAddLoc(geo) {
+function openModal({geo, name}) {
     console.log(geo)
-    const locName = prompt('Loc name', geo.address || 'Just a place')
-    if (!locName) return
+    document.querySelector('.modal').dataset.geo = JSON.stringify(geo, null, 2)
+    document.querySelector('.loc-input').value = name || 'Select Place Name'
+    document.querySelector('.modal').showModal()
+}
 
-    const loc = {
+function onSave() {
+    const locName = document.querySelector('.loc-input').value
+    if (!locName) return
+    let loc = {
         name: locName,
-        rate: +prompt(`Rate (1-5)`, '3'),
-        geo,
+        rate: document.getElementById('rangeValue').innerHTML,
+        geo : JSON.parse(document.querySelector('.modal').dataset.geo),
     }
+
+    if(document.querySelector('.modal').dataset.id){
+        loc.id = document.querySelector('.modal').dataset.id
+        delete document.querySelector('.modal').dataset.id
+    }
+
+    console.log(loc)
+    document.querySelector('.modal').close()
     locService
         .save(loc)
         .then((savedLoc) => {
@@ -139,6 +153,13 @@ function onAddLoc(geo) {
             console.error('OOPs:', err)
             flashMsg('Cannot add location')
         })
+}
+
+function onUpdateLoc(locId) {
+    locService.getById(locId).then((loc) => {
+        openModal(loc)
+        document.querySelector('.modal').dataset.id = locId
+    })
 }
 
 function loadAndRenderLocs() {
@@ -165,25 +186,6 @@ function onPanToUserPos() {
             console.error('OOPs:', err)
             flashMsg('Cannot get your position')
         })
-}
-
-function onUpdateLoc(locId) {
-    locService.getById(locId).then((loc) => {
-        const rate = prompt('New rate?', loc.rate)
-        if (rate !== loc.rate) {
-            loc.rate = rate
-            locService
-                .save(loc)
-                .then((savedLoc) => {
-                    flashMsg(`Rate was set to: ${savedLoc.rate}`)
-                    loadAndRenderLocs()
-                })
-                .catch((err) => {
-                    console.error('OOPs:', err)
-                    flashMsg('Cannot update location')
-                })
-        }
-    })
 }
 
 function onSelectLoc(locId) {
