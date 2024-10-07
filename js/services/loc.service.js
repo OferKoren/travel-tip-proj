@@ -30,37 +30,37 @@ export const locService = {
     save,
     setFilterBy,
     setSortBy,
-    getLocCountByRateMap
+    getLocCountByRateMap,
+    getLocCountByLastUpdatedMap,
 }
 
 function query() {
-    return storageService.query(DB_KEY)
-        .then(locs => {
-            if (gFilterBy.txt) {
-                const regex = new RegExp(gFilterBy.txt, 'i')
-                locs = locs.filter(loc => regex.test(loc.name))
-            }
-            if (gFilterBy.minRate) {
-                locs = locs.filter(loc => loc.rate >= gFilterBy.minRate)
-            }
+    return storageService.query(DB_KEY).then((locs) => {
+        if (gFilterBy.txt) {
+            const regex = new RegExp(gFilterBy.txt, 'i')
+            locs = locs.filter((loc) => regex.test(loc.name))
+        }
+        if (gFilterBy.minRate) {
+            locs = locs.filter((loc) => loc.rate >= gFilterBy.minRate)
+        }
 
-            // No paging (unused)
-            if (gPageIdx !== undefined) {
-                const startIdx = gPageIdx * PAGE_SIZE
-                locs = locs.slice(startIdx, startIdx + PAGE_SIZE)
-            }
+        // No paging (unused)
+        if (gPageIdx !== undefined) {
+            const startIdx = gPageIdx * PAGE_SIZE
+            locs = locs.slice(startIdx, startIdx + PAGE_SIZE)
+        }
 
-            if (gSortBy.rate !== undefined) {
-                locs.sort((p1, p2) => (p1.rate - p2.rate) * gSortBy.rate)
-            } else if (gSortBy.name !== undefined) {
-                locs.sort((p1, p2) => p1.name.localeCompare(p2.name) * gSortBy.name)
-            } else if (gSortBy.creationTime !== undefined){
-                console.log(locs[0].createdAt)
-                locs.sort((p1, p2) => (p1.createdAt - p2.createdAt) * gSortBy.creationTime * -1)
-            }
+        if (gSortBy.rate !== undefined) {
+            locs.sort((p1, p2) => (p1.rate - p2.rate) * gSortBy.rate)
+        } else if (gSortBy.name !== undefined) {
+            locs.sort((p1, p2) => p1.name.localeCompare(p2.name) * gSortBy.name)
+        } else if (gSortBy.creationTime !== undefined) {
+            console.log(locs[0].createdAt)
+            locs.sort((p1, p2) => (p1.createdAt - p2.createdAt) * gSortBy.creationTime * -1)
+        }
 
-            return locs
-        })
+        return locs
+    })
 }
 
 function getById(locId) {
@@ -88,17 +88,37 @@ function setFilterBy(filterBy = {}) {
 }
 
 function getLocCountByRateMap() {
-    return storageService.query(DB_KEY)
-        .then(locs => {
-            const locCountByRateMap = locs.reduce((map, loc) => {
+    return storageService.query(DB_KEY).then((locs) => {
+        const locCountByRateMap = locs.reduce(
+            (map, loc) => {
                 if (loc.rate > 4) map.high++
                 else if (loc.rate >= 3) map.medium++
                 else map.low++
                 return map
-            }, { high: 0, medium: 0, low: 0 })
-            locCountByRateMap.total = locs.length
-            return locCountByRateMap
-        })
+            },
+            { high: 0, medium: 0, low: 0 }
+        )
+        locCountByRateMap.total = locs.length
+        return locCountByRateMap
+    })
+}
+function getLocCountByLastUpdatedMap() {
+    return storageService.query(DB_KEY).then((locs) => {
+        const locCountByRateMap = locs.reduce(
+            (map, loc) => {
+                const diff = Date.now() - loc.updatedAt
+                console.log(`diff ${diff}`)
+                const DAY = 1000 * 60 * 60 * 24
+                if (loc.createdAt === loc.updatedAt) map.never++
+                else if (diff < DAY) map.today++
+                else map.past++
+                return map
+            },
+            { today: 0, past: 0, never: 0 }
+        )
+        locCountByRateMap.total = locs.length
+        return locCountByRateMap
+    })
 }
 
 function setSortBy(sortBy = {}) {
@@ -113,39 +133,38 @@ function _createLocs() {
 }
 
 function _createDemoLocs() {
-    var locs =
-        [
-            {
-                name: "Ben Gurion Airport",
-                rate: 2,
-                geo: {
-                    address: "Ben Gurion Airport, 7015001, Israel",
-                    lat: 32.0004465,
-                    lng: 34.8706095,
-                    zoom: 12
-                },
+    var locs = [
+        {
+            name: 'Ben Gurion Airport',
+            rate: 2,
+            geo: {
+                address: 'Ben Gurion Airport, 7015001, Israel',
+                lat: 32.0004465,
+                lng: 34.8706095,
+                zoom: 12,
             },
-            {
-                name: "Dekel Beach",
-                rate: 4,
-                geo: {
-                    address: "Derekh Mitsrayim 1, Eilat, 88000, Israel",
-                    lat: 29.5393848,
-                    lng: 34.9457792,
-                    zoom: 15
-                },
+        },
+        {
+            name: 'Dekel Beach',
+            rate: 4,
+            geo: {
+                address: 'Derekh Mitsrayim 1, Eilat, 88000, Israel',
+                lat: 29.5393848,
+                lng: 34.9457792,
+                zoom: 15,
             },
-            {
-                name: "Dahab, Egypt",
-                rate: 5,
-                geo: {
-                    address: "Dahab, South Sinai, Egypt",
-                    lat: 28.5096676,
-                    lng: 34.5165187,
-                    zoom: 11
-                }
-            }
-        ]
+        },
+        {
+            name: 'Dahab, Egypt',
+            rate: 5,
+            geo: {
+                address: 'Dahab, South Sinai, Egypt',
+                lat: 28.5096676,
+                lng: 34.5165187,
+                zoom: 11,
+            },
+        },
+    ]
 
     locs = locs.map(_createLoc)
     utilService.saveToStorage(DB_KEY, locs)
@@ -156,7 +175,6 @@ function _createLoc(loc) {
     loc.createdAt = loc.updatedAt = utilService.randomPastTime()
     return loc
 }
-
 
 // unused functions
 // function getEmptyLoc(name = '') {
@@ -174,4 +192,3 @@ function _createLoc(loc) {
 //         }
 //     }
 // }
-
