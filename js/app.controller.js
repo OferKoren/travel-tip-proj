@@ -119,11 +119,17 @@ function onSearchAddress(ev) {
         })
 }
 
-function openModal({geo, name}) {
+function openModal(geo) {
     console.log(geo)
-    document.querySelector('.modal').dataset.geo = JSON.stringify(geo, null, 2)
-    document.querySelector('.loc-input').value = name || 'Select Place Name'
-    document.querySelector('.modal').showModal()
+    const elModal = document.querySelector('.modal')
+    if (elModal.dataset.loc) {
+        document.querySelector('.modal-title').innerText = 'Update Location'
+    } else {
+        document.querySelector('.modal-title').innerText = 'Add Location'
+    }
+    elModal.dataset.geo = JSON.stringify(geo, null, 2)
+    document.querySelector('.loc-input').value = geo.name || 'Select Location Name'
+    elModal.showModal()
 }
 
 function onSave() {
@@ -131,16 +137,18 @@ function onSave() {
     if (!locName) return
     let loc = {
         name: locName,
-        rate: document.getElementById('rangeValue').innerHTML,
-        geo : JSON.parse(document.querySelector('.modal').dataset.geo),
+        rate: document.querySelector('.rating').value,
+        geo: JSON.parse(document.querySelector('.modal').dataset.geo),
     }
 
-    if(document.querySelector('.modal').dataset.id){
-        loc.id = document.querySelector('.modal').dataset.id
-        delete document.querySelector('.modal').dataset.id
+    if (document.querySelector('.modal').dataset.loc) {
+        loc = JSON.parse(document.querySelector('.modal').dataset.loc)
+        loc.rate = document.querySelector('.rating').value
+        // console.log('before: ',document.querySelector('.modal').dataset.loc)
+        delete document.querySelector('.modal').dataset.loc
+        console.log('after: ', document.querySelector('.modal').dataset.loc)
     }
 
-    console.log(loc)
     document.querySelector('.modal').close()
     locService
         .save(loc)
@@ -157,9 +165,9 @@ function onSave() {
 
 function onUpdateLoc(locId) {
     locService.getById(locId).then((loc) => {
+        document.querySelector('.modal').dataset.loc = JSON.stringify(loc)
         openModal(loc)
-        document.querySelector('.modal').dataset.id = locId
-    })
+    }).catch(err => console.error(err))
 }
 
 function loadAndRenderLocs() {
