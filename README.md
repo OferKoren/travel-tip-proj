@@ -1,32 +1,38 @@
 # TravelTip
+
 #### The app that gets you somewhere
 
-
 ## Description
+
 TravelTip is an app that keeps a list of favorite locations
 
 ## Main Features
-- The app allows the user to keep and manage locations
-- The user can also search for an address and pan the map to that point
-- The User can pan the map to his own geo-location
 
-## Locations CRUDL 
-- Create – click on the map prompts for name and rate
-- Read – Selected location details (see below) 
-- Update – can update location rate
-- Delete – can delete a location
-- List - Including filtering, sorting and grouping
+-   The app allows the user to keep and manage locations
+-   The user can also search for an address and pan the map to that point
+-   The User can pan the map to his own geo-location
+
+## Locations CRUDL
+
+-   Create – click on the map prompts for name and rate
+-   Read – Selected location details (see below)
+-   Update – can update location rate
+-   Delete – can delete a location
+-   List - Including filtering, sorting and grouping
 
 ## Selected Location
-- Displayed in the header
-- Location is active in the list (gold color)
-- Marker on the map
-- Reflected in query params 
-- Copy url to clipboard
-- Share via Web-Share API
+
+-   Displayed in the header
+-   Location is active in the list (gold color)
+-   Marker on the map
+-   Reflected in query params
+-   Copy url to clipboard
+-   Share via Web-Share API
 
 ## Location
+
 Here is the format of the location object:
+
 ```js
 {
     id: 'GEouN',
@@ -41,8 +47,10 @@ Here is the format of the location object:
     createdAt: 1706562160181,
     updatedAt: 1706562160181
   }
-  ```
+```
+
 ## Services
+
 ```js
 export const locService = {
     query,
@@ -51,7 +59,7 @@ export const locService = {
     save,
     setFilterBy,
     setSortBy,
-    getLocCountByRateMap
+    getLocCountByRateMap,
 }
 
 export const mapService = {
@@ -60,13 +68,14 @@ export const mapService = {
     setMarker,
     panTo,
     lookupAddressGeo,
-    addClickListener
+    addClickListener,
 }
 ```
 
 ## Controller
+
 ```js
-// To make things easier in this project structure 
+// To make things easier in this project structure
 // functions that are called from DOM are defined on a global app object
 
 window.app = {
@@ -78,14 +87,24 @@ window.app = {
     onCopyLoc,
     onShareLoc,
     onSetSortBy,
-    onSetFilterBy
+    onSetFilterBy,
 }
 ```
 
+## version 1.1 (ex-finish)
+
+features added
+
+-   Add confirmation before removing a location
+-   Add the option to sort by creation time of a location
+-   Improve the filter by text mechanism by testing the location geo address as well
+-   When user share his position. show distance between user and locations
+-   Add to the stats grouping by the last update of each location
+-   Improved UI when adding and updating a location
+
 Here is a sample usage:
+
 ```html
 <button onclick="app.onCopyLoc()">Copy location</button>
 <button onclick="app.onShareLoc()">Share location</button>
 ```
-
-
